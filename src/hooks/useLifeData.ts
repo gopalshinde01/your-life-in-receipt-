@@ -73,6 +73,27 @@ export function useLifeData() {
     setActivities(prev => prev.filter(a => a.id !== id));
   }, []);
 
+  const updateActivity = useCallback((id: string, updates: Partial<Omit<Activity, 'id' | 'createdAt'>>) => {
+    setActivities(prev =>
+      prev.map(a => {
+        if (a.id !== id) return a;
+        let dur = a.durationMinutes;
+        if (updates.durationMinutes !== undefined) {
+          const val = validateDurationMinutes(updates.durationMinutes);
+          if (val.isValid) dur = val.value;
+        }
+        return {
+          ...a,
+          ...updates,
+          title: updates.title !== undefined ? sanitizeString(updates.title, 80) || a.title : a.title,
+          category: updates.category || a.category,
+          durationMinutes: dur,
+          notes: updates.notes !== undefined ? (updates.notes ? sanitizeString(updates.notes, 250) : undefined) : a.notes,
+        };
+      })
+    );
+  }, []);
+
   // Expense Actions
   const addExpense = useCallback((data: Omit<Expense, 'id' | 'createdAt'>) => {
     const amtValidation = validateExpenseAmount(data.amount);
@@ -97,6 +118,26 @@ export function useLifeData() {
     setExpenses(prev => prev.filter(e => e.id !== id));
   }, []);
 
+  const updateExpense = useCallback((id: string, updates: Partial<Omit<Expense, 'id' | 'createdAt'>>) => {
+    setExpenses(prev =>
+      prev.map(e => {
+        if (e.id !== id) return e;
+        let amt = e.amount;
+        if (updates.amount !== undefined) {
+          const val = validateExpenseAmount(updates.amount);
+          if (val.isValid) amt = val.value;
+        }
+        return {
+          ...e,
+          ...updates,
+          amount: amt,
+          category: updates.category || e.category,
+          description: updates.description !== undefined ? sanitizeString(updates.description, 100) || e.description : e.description,
+        };
+      })
+    );
+  }, []);
+
   // Goal Actions
   const addGoal = useCallback((data: Omit<Goal, 'id' | 'createdAt'>) => {
     const clampedProg = clampGoalProgress(data.progress);
@@ -112,6 +153,23 @@ export function useLifeData() {
 
     setGoals(prev => [newGoal, ...prev]);
     return newGoal;
+  }, []);
+
+  const updateGoal = useCallback((id: string, updates: Partial<Omit<Goal, 'id' | 'createdAt'>>) => {
+    setGoals(prev =>
+      prev.map(g => {
+        if (g.id !== id) return g;
+        const prog = updates.progress !== undefined ? clampGoalProgress(updates.progress) : g.progress;
+        return {
+          ...g,
+          ...updates,
+          title: updates.title !== undefined ? sanitizeString(updates.title, 80) || g.title : g.title,
+          category: updates.category !== undefined ? sanitizeString(updates.category, 40) || g.category : g.category,
+          progress: prog,
+          completed: updates.completed !== undefined ? updates.completed : (prog >= 100 ? true : g.completed),
+        };
+      })
+    );
   }, []);
 
   const updateGoalProgress = useCallback((id: string, progress: number) => {
@@ -189,10 +247,13 @@ export function useLifeData() {
     moods,
     profile,
     addActivity,
+    updateActivity,
     deleteActivity,
     addExpense,
+    updateExpense,
     deleteExpense,
     addGoal,
+    updateGoal,
     updateGoalProgress,
     toggleGoalCompleted,
     deleteGoal,

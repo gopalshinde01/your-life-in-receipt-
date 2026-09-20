@@ -135,7 +135,7 @@ The engine analyzes the user's actual daily log using rule-based heuristics:
 
 ---
 
-## 📁 Project Architecture & Folder Structure
+## 📁 Project Architecture & Clean Folder Structure
 
 ```
 Your Life In Receipts/
@@ -148,25 +148,29 @@ Your Life In Receipts/
 │   │   ├── expenses/         # Expense itemization and validated form
 │   │   ├── goals/            # Compounding goal cards and progress tracker
 │   │   ├── insights/         # Local heuristic reflection feed
-│   │   ├── layout/           # Sticky glass Header, Footer, PageContainer, SkipLink
+│   │   ├── layout/           # Backwards-compatible layout re-exports
 │   │   └── receipt/          # LifeReceipt docket, DotLeader, Barcode, TearEdges
+│   ├── context/              # LifeContext & LifeProvider for centralized state access
+│   ├── layouts/              # AppLayout, Header, Footer, PageContainer, SkipLink
 │   ├── constants/            # Categories, Storage Keys, Routes, Default Profile
 │   ├── data/                 # Deterministic sample seed data for evaluation
-│   ├── hooks/                # useLifeData, useTheme, useLanguage, useToast, useFocusTrap
+│   ├── hooks/                # useLifeData (Full CRUD), useTheme, useLanguage, useToast
 │   ├── i18n/                 # Translation dictionaries (English, हिन्दी, मराठी)
 │   ├── pages/                # Dashboard, Receipt, AddEntry, Analytics, Profile, etc.
-│   ├── services/             # storageService, receiptService, insightService
+│   ├── services/             # storageService, receiptService, insightService, trendService
 │   ├── styles/               # index.css (Tailwind layers, thermal styling, a11y motion)
-│   ├── tests/                # 11 Vitest test suites (calculations, security, a11y)
+│   ├── tests/                # 15 Vitest test suites (50 tests covering calculations, CRUD, trends, a11y)
 │   ├── types/                # TypeScript domain models and interfaces
 │   ├── utils/                # calculations, validators, sanitizers, formatters, confetti
-│   ├── App.tsx               # Main router, error boundary, suspense fallback
-│   └── main.tsx              # React DOM bootstrap
-├── index.html                # Accessible HTML shell with proper meta tags
+│   ├── App.tsx               # Main router, error boundary, suspense fallback, context provider
+│   └── main.tsx              # React DOM bootstrap with root Error Boundary
+├── public/                   # Static assets, 404.html fallback, _redirects
+├── docs/                     # Compiled production build for GitHub Pages hosting
+├── .github/workflows/        # Automated GitHub Pages build & deployment workflow
 ├── package.json              # Project dependencies & npm scripts
 ├── tailwind.config.js        # Theme color tokens, custom box shadows
 ├── tsconfig.json             # Strict TypeScript configuration
-└── vite.config.ts            # Vite build setup with code-splitting
+└── vite.config.ts            # Vite build setup with code-splitting & manualChunks
 ```
 
 ---
@@ -239,7 +243,7 @@ Although this is a client-side frontend project, security best practices are str
 
 ## 🧪 Testing & Quality Assurance
 
-The project includes **11 Vitest test suites containing 42 tests** with a **100% pass rate**:
+The project includes **15 Vitest test suites containing 50 tests** with a **100% pass rate**:
 
 ```bash
 # Run all tests once
@@ -249,18 +253,23 @@ npm run test
 npm run test:watch
 ```
 
-### Verified Test Suites:
-1. `calculations.test.ts`: Total time, currency sums, productivity ratio, weighted Life Score.
-2. `security.test.ts`: Script stripping, HTML removal, XSS protocol checks, numeric limits.
-3. `storage.test.ts`: LocalStorage persistence, corrupted JSON auto-recovery, fallback handling.
-4. `Receipt.test.tsx`: Thermal docket rendering, dot leaders, barcode, and print labels.
-5. `Expenses.test.tsx`: Expense validation, negative value rejection, accessible error states.
-6. `Activities.test.tsx`: Duration boundary checks, max 1440 min rejection.
-7. `Goals.test.tsx`: Goal progress updates, completion toggle, milestone triggers.
-8. `Navigation.test.tsx`: Root route `/` opening Dashboard directly, `/landing` accessibility, 404 fallback.
-9. `theme.test.tsx`: Two-theme sequence verification, `ThemeSelector`, and `ThemeLanguageControl`.
-10. `i18n.test.tsx`: Dictionary coverage for all 3 languages, fallback handling, localized rendering.
-11. `ECell.test.tsx`: Institutional portal branding, venture showcase, and applicant modal.
+### Test Coverage Breakdown (15 Test Suites • 50 Tests • 100% Passing)
+
+1. `calculations.test.ts`: Mathematical verification of total time, expenses, productivity ratio, and weighted Life Score.
+2. `security.test.ts`: Rejection of `<script>` injection, HTML tag stripping, URL scheme safety, boundary checks.
+3. `storage.test.ts`: LocalStorage persistence, defensive fallback on corrupted JSON, schema integrity.
+4. `crud.test.ts`: End-to-end update operations for activities, expenses, and goal progress milestones.
+5. `trends.test.ts`: Weekly period-over-period percentage changes, top category identification, zero-base safety.
+6. `context.test.tsx`: Centralized `LifeProvider` delivery, consumer reactivity, and boundary enforcement.
+7. `Receipt.test.tsx`: Component rendering, itemized rows, dot leaders, totals, barcode, Life Score.
+8. `Expenses.test.tsx`: Valid submission, negative amount rejection with accessible error alert.
+9. `Activities.test.tsx`: Duration boundary validation, max 1440 min rejection.
+10. `Goals.test.tsx`: Goal card rendering, completion toggle, progress updates.
+11. `Navigation.test.tsx`: Root route `/` opening Dashboard directly, `/landing` accessibility, 404 fallback.
+12. `theme.test.tsx`: Two-theme sequence verification, `ThemeSelector`, and `ThemeLanguageControl`.
+13. `i18n.test.tsx`: Dictionary coverage for all 3 languages, fallback handling, localized rendering.
+14. `App.test.tsx`: Full top-level App mounting and error boundary verification.
+15. `ECell.test.tsx`: Institutional portal branding, venture showcase, and applicant modal.
 
 ---
 

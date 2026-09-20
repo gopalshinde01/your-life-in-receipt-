@@ -9,7 +9,7 @@ export interface ExpenseItemProps {
   onDelete: (id: string) => void;
 }
 
-export const ExpenseItem: React.FC<ExpenseItemProps> = ({
+const ExpenseItemComponent: React.FC<ExpenseItemProps> = ({
   expense,
   currency = '₹',
   onDelete,
@@ -48,3 +48,6 @@ export const ExpenseItem: React.FC<ExpenseItemProps> = ({
     </article>
   );
 };
+
+export const ExpenseItem = React.memo(ExpenseItemComponent);
+

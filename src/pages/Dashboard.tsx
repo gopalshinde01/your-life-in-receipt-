@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { PageContainer } from '../components/layout/PageContainer';
 import { QuickSummary } from '../components/dashboard/QuickSummary';
@@ -20,13 +20,13 @@ export interface DashboardProps {
 export const DashboardPage: React.FC<DashboardProps> = ({ lifeData, t }) => {
   const { activities, expenses, goals, moods, profile, deleteActivity, deleteExpense } = lifeData;
 
-  const totalMinutes = calculateTotalTime(activities);
-  const totalExpenses = calculateTotalExpenses(expenses);
-  const activeGoals = goals.filter(g => !g.completed).length;
-  const completedGoals = goals.filter(g => g.completed).length;
-  const { average: avgMood } = calculateMoodAverage(moods);
+  const totalMinutes = useMemo(() => calculateTotalTime(activities), [activities]);
+  const totalExpenses = useMemo(() => calculateTotalExpenses(expenses), [expenses]);
+  const activeGoals = useMemo(() => goals.filter(g => !g.completed).length, [goals]);
+  const completedGoals = useMemo(() => goals.filter(g => g.completed).length, [goals]);
+  const avgMood = useMemo(() => calculateMoodAverage(moods).average, [moods]);
 
-  const lifeScore = calculateLifeScore({ activities, goals, moods });
+  const lifeScore = useMemo(() => calculateLifeScore({ activities, goals, moods }), [activities, goals, moods]);
 
   const getLabel = (key: TranslationKey, fallback: string) => (t ? t(key) : fallback);
 

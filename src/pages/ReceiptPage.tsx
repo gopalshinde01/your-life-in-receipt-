@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { LifeReceipt } from '../components/receipt/LifeReceipt';
 import { Card } from '../components/common/Card';
 import { receiptService } from '../services/receiptService';
+import { trendService } from '../services/trendService';
 import { useLifeData } from '../hooks/useLifeData';
 
 import { AppTheme, ThemeConfig, Language, ActivityCategory, ExpenseCategory } from '../types';
@@ -43,14 +44,25 @@ export const ReceiptPage: React.FC<ReceiptPageProps> = ({
     return todayMood ? todayMood.rating : 8;
   });
 
-  const receiptData = receiptService.generateReceiptData({
-    activities,
-    expenses,
-    goals,
-    moods,
-    profile,
-    filterDate: selectedDate || undefined,
-  });
+  const receiptData = useMemo(() => {
+    return receiptService.generateReceiptData({
+      activities,
+      expenses,
+      goals,
+      moods,
+      profile,
+      filterDate: selectedDate || undefined,
+    });
+  }, [activities, expenses, goals, moods, profile, selectedDate]);
+
+  const weeklyTrends = useMemo(() => {
+    return trendService.analyzeWeeklyTrends({
+      activities,
+      expenses,
+      moods,
+      goals,
+    });
+  }, [activities, expenses, moods, goals]);
 
   const handleQuickAdd = (e: React.FormEvent) => {
     e.preventDefault();
@@ -230,6 +242,50 @@ export const ReceiptPage: React.FC<ReceiptPageProps> = ({
                 + Append to Receipt Docket
               </Button>
             </form>
+          </Card>
+
+          {/* Weekly Trends Card */}
+          <Card variant="elevated">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base font-bold text-neutral-100 flex items-center gap-2">
+                <span className="text-amber-400">📈</span>
+                <span>Weekly Trends & Comparison</span>
+              </h2>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                7-Day Delta
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2.5 mb-3.5">
+              <div className="p-2.5 rounded-xl bg-neutral-900/80 border border-neutral-800">
+                <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider block">
+                  Productive Hours
+                </span>
+                <div className={`text-base font-bold font-mono mt-0.5 ${weeklyTrends.productiveHoursDeltaPercent >= 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
+                  {weeklyTrends.productiveHoursDeltaPercent >= 0 ? '+' : ''}{weeklyTrends.productiveHoursDeltaPercent}%
+                </div>
+                <span className="text-[10px] text-neutral-500 mt-0.5 block">vs previous 7 days</span>
+              </div>
+
+              <div className="p-2.5 rounded-xl bg-neutral-900/80 border border-neutral-800">
+                <span className="text-[10px] text-neutral-400 font-semibold uppercase tracking-wider block">
+                  Spending Flow
+                </span>
+                <div className={`text-base font-bold font-mono mt-0.5 ${weeklyTrends.totalExpensesDeltaPercent <= 0 ? 'text-emerald-400' : 'text-neutral-200'}`}>
+                  {weeklyTrends.totalExpensesDeltaPercent >= 0 ? '+' : ''}{weeklyTrends.totalExpensesDeltaPercent}%
+                </div>
+                <span className="text-[10px] text-neutral-500 mt-0.5 block">vs previous 7 days</span>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 pt-1 border-t border-neutral-800/80">
+              {weeklyTrends.trendHighlights.map((hl, idx) => (
+                <div key={idx} className="flex items-start gap-2 text-xs text-neutral-300">
+                  <span className="text-amber-400 font-bold leading-none mt-1">•</span>
+                  <span className="leading-snug">{hl}</span>
+                </div>
+              ))}
+            </div>
           </Card>
 
           <Card>

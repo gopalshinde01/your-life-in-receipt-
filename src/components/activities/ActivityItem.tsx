@@ -8,7 +8,7 @@ export interface ActivityItemProps {
   onDelete: (id: string) => void;
 }
 
-export const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onDelete }) => {
+const ActivityItemComponent: React.FC<ActivityItemProps> = ({ activity, onDelete }) => {
   const getBadgeVariant = (category: string): 'amber' | 'emerald' | 'blue' | 'purple' | 'neutral' => {
     switch (category) {
       case 'Coding':
@@ -66,3 +66,5 @@ export const ActivityItem: React.FC<ActivityItemProps> = ({ activity, onDelete }
     </article>
   );
 };
+
+export const ActivityItem = React.memo(ActivityItemComponent);
