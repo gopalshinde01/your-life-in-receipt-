@@ -11,6 +11,7 @@ export interface HeaderProps {
   currentLanguage?: Language;
   onSelectLanguage?: (lang: Language) => void;
   t?: (key: TranslationKey) => string;
+  onOpenFeedback?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -19,6 +20,7 @@ export const Header: React.FC<HeaderProps> = ({
   currentLanguage = 'en',
   onSelectLanguage = () => {},
   t,
+  onOpenFeedback,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
@@ -100,7 +102,7 @@ export const Header: React.FC<HeaderProps> = ({
           })}
         </nav>
 
-        {/* Desktop Merged Theme & Language Control */}
+        {/* Desktop Merged Theme & Language Control & Feedback */}
         <div className="hidden lg:flex items-center ml-2">
           <ThemeLanguageControl
             currentTheme={currentTheme}
@@ -109,6 +111,18 @@ export const Header: React.FC<HeaderProps> = ({
             onSelectLanguage={onSelectLanguage}
             variant="compact"
           />
+          {onOpenFeedback && (
+            <button
+              type="button"
+              onClick={onOpenFeedback}
+              className="ml-2 px-2.5 py-1 rounded-lg text-xs font-medium border border-neutral-700/80 bg-neutral-800/80 hover:bg-neutral-700 text-neutral-300 hover:text-amber-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors flex items-center gap-1.5 min-h-[36px]"
+              title="Share feedback or report an issue"
+              aria-label="Open feedback dialog"
+            >
+              <span aria-hidden="true">💬</span>
+              <span className="hidden xl:inline">Feedback</span>
+            </button>
+          )}
         </div>
 
         {/* Mobile menu hamburger button & merged control */}
@@ -172,6 +186,19 @@ export const Header: React.FC<HeaderProps> = ({
                 </Link>
               );
             })}
+            {onOpenFeedback && (
+              <button
+                type="button"
+                onClick={() => {
+                  closeMobileMenu();
+                  onOpenFeedback();
+                }}
+                className="px-4 py-3 rounded-xl text-sm font-medium transition-all min-h-[44px] flex items-center gap-2 text-amber-400 hover:text-amber-300 hover:bg-neutral-800/70 border border-neutral-800 mt-1"
+              >
+                <span>💬</span>
+                <span>Share Feedback</span>
+              </button>
+            )}
           </nav>
         </>
       )}

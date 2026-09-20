@@ -33,6 +33,7 @@ export const STORAGE_KEYS = {
   PROFILE: 'life_receipt_profile_v1',
   THEME: 'life_receipt_theme_v1',
   LANGUAGE: 'life_receipt_language_v1',
+  FEEDBACK: 'life_receipt_feedback_v1',
 } as const;
 
 export const THEMES = [

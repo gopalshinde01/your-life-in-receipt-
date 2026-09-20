@@ -2,7 +2,11 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { ROUTES } from '../constants';
 
-export const Footer: React.FC = () => {
+export interface FooterProps {
+  onOpenFeedback?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenFeedback }) => {
   return (
     <footer className="no-print mt-auto border-t border-neutral-800/80 bg-neutral-950/60 text-neutral-400 text-xs py-8 px-4 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
@@ -28,6 +32,15 @@ export const Footer: React.FC = () => {
           <Link to={ROUTES.PROFILE} className="hover:text-amber-400 focus:outline-none focus-visible:underline">
             Profile & Settings
           </Link>
+          {onOpenFeedback && (
+            <button
+              type="button"
+              onClick={onOpenFeedback}
+              className="text-amber-400 hover:text-amber-300 focus:outline-none focus-visible:underline font-medium cursor-pointer"
+            >
+              💬 Feedback
+            </button>
+          )}
         </div>
 
         <div className="flex items-center gap-3 text-[11px] text-neutral-500">

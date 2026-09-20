@@ -74,6 +74,7 @@ Traditional self-tracking and habit applications suffer from two major pitfalls:
   - `Classic Thermal`: Warm obsidian backdrop, vintage beige thermal docket (`#faf8f5`), dark warm ink, and amber accents.
   - `Pure White (Light)`: Clean daylight mode with pure white docket (`#ffffff`), light slate backdrop, and dark typography.
 - 🌐 **Integrated Preferences Control**: Consolidated popover seamlessly grouping theme toggle and regional language selection in sequence.
+- 💬 **User Feedback & Audit Portal**: Built-in accessible modal dialog allowing users to submit ratings (1-5 stars with emoji reaction), categorized feedback (Feature Request, Bug Report, General, Receipt Suggestion), and comments persisted locally to `life_receipt_feedback_v1`.
 - 📥 **Export Capabilities**:
   - **Download as PDF / Print**: Formatted with print media queries specifically for receipt roll layouts.
   - **Download as PNG**: Pure client-side HTML5 canvas snapshot.
@@ -253,7 +254,7 @@ npm run test
 npm run test:watch
 ```
 
-### Test Coverage Breakdown (15 Test Suites • 50 Tests • 100% Passing)
+### Test Coverage Breakdown (16 Test Suites • 53 Tests • 100% Passing)
 
 1. `calculations.test.ts`: Mathematical verification of total time, expenses, productivity ratio, and weighted Life Score.
 2. `security.test.ts`: Rejection of `<script>` injection, HTML tag stripping, URL scheme safety, boundary checks.
@@ -261,15 +262,16 @@ npm run test:watch
 4. `crud.test.ts`: End-to-end update operations for activities, expenses, and goal progress milestones.
 5. `trends.test.ts`: Weekly period-over-period percentage changes, top category identification, zero-base safety.
 6. `context.test.tsx`: Centralized `LifeProvider` delivery, consumer reactivity, and boundary enforcement.
-7. `Receipt.test.tsx`: Component rendering, itemized rows, dot leaders, totals, barcode, Life Score.
-8. `Expenses.test.tsx`: Valid submission, negative amount rejection with accessible error alert.
-9. `Activities.test.tsx`: Duration boundary validation, max 1440 min rejection.
-10. `Goals.test.tsx`: Goal card rendering, completion toggle, progress updates.
-11. `Navigation.test.tsx`: Root route `/` opening Dashboard directly, `/landing` accessibility, 404 fallback.
-12. `theme.test.tsx`: Two-theme sequence verification, `ThemeSelector`, and `ThemeLanguageControl`.
-13. `i18n.test.tsx`: Dictionary coverage for all 3 languages, fallback handling, localized rendering.
-14. `App.test.tsx`: Full top-level App mounting and error boundary verification.
-15. `ECell.test.tsx`: Institutional portal branding, venture showcase, and applicant modal.
+7. `Feedback.test.tsx`: User rating selection, category selection, validation, LocalStorage recording, and toast alerts.
+8. `Receipt.test.tsx`: Component rendering, itemized rows, dot leaders, totals, barcode, Life Score.
+9. `Expenses.test.tsx`: Valid submission, negative amount rejection with accessible error alert.
+10. `Activities.test.tsx`: Duration boundary validation, max 1440 min rejection.
+11. `Goals.test.tsx`: Goal card rendering, completion toggle, progress updates.
+12. `Navigation.test.tsx`: Root route `/` opening Dashboard directly, `/landing` accessibility, 404 fallback.
+13. `theme.test.tsx`: Two-theme sequence verification, `ThemeSelector`, and `ThemeLanguageControl`.
+14. `i18n.test.tsx`: Dictionary coverage for all 3 languages, fallback handling, localized rendering.
+15. `App.test.tsx`: Full top-level App mounting and error boundary verification.
+16. `ECell.test.tsx`: Institutional portal branding, venture showcase, and applicant modal.
 
 ---
 

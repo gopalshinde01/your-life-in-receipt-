@@ -46,6 +46,7 @@ export function App() {
           currentLanguage={language}
           onSelectLanguage={setLanguage}
           t={t}
+          onShowToast={handleShowToast}
         >
           <ErrorBoundary fallbackTitle="Application Error Encountered" fallbackMessage="An error occurred inside the view router. You can reset state or navigate back safely.">
             <Suspense fallback={<LoadingState message="Loading ledger view..." minHeight="min-h-[500px]" />}>

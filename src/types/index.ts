@@ -66,6 +66,15 @@ export interface MoodEntry {
   createdAt: number;
 }
 
+export interface FeedbackEntry {
+  id: string;
+  rating: number; // 1 to 5
+  category: 'General' | 'Feature Request' | 'Bug Report' | 'Receipt Suggestion';
+  message: string;
+  email?: string;
+  createdAt: number;
+}
+
 export interface UserProfile {
   name: string;
   headline?: string;
