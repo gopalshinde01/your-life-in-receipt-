@@ -25,20 +25,36 @@ export const insightService = {
     const dayActivities = filterDate ? activities.filter(a => a.date === filterDate) : activities;
     const dayExpenses = filterDate ? expenses.filter(e => e.date === filterDate) : expenses;
 
-    // Analyze high priority patterns
-    const codingMins = dayActivities.filter(a => a.category === 'Coding').reduce((acc, c) => acc + c.durationMinutes, 0);
-    const exerciseMins = dayActivities.filter(a => a.category === 'Exercise').reduce((acc, c) => acc + c.durationMinutes, 0);
-    const socialMins = dayActivities.filter(a => a.category === 'Social Media').reduce((acc, c) => acc + c.durationMinutes, 0);
-    const studyMins = dayActivities.filter(a => a.category === 'Study' || a.category === 'Reading').reduce((acc, c) => acc + c.durationMinutes, 0);
-    
+    // Calculate category totals
+    const catTotals = new Map<string, number>();
+    dayActivities.forEach(a => {
+      catTotals.set(a.category, (catTotals.get(a.category) || 0) + a.durationMinutes);
+    });
+
+    // Find highest duration productive category
+    const productiveCategories = ['Study', 'Coding', 'Work', 'Exercise', 'Reading'];
+    let topProductiveCat = '';
+    let topProductiveMins = 0;
+    catTotals.forEach((mins, cat) => {
+      if (productiveCategories.includes(cat) && mins > topProductiveMins) {
+        topProductiveMins = mins;
+        topProductiveCat = cat;
+      }
+    });
+
+    const codingMins = catTotals.get('Coding') || 0;
+    const exerciseMins = catTotals.get('Exercise') || 0;
+    const socialMins = catTotals.get('Social Media') || 0;
+    const studyMins = (catTotals.get('Study') || 0) + (catTotals.get('Reading') || 0);
     const completedGoals = goals.filter(g => g.completed).length;
+
+    if (topProductiveCat && topProductiveMins >= 90) {
+      const formatted = formatMinutesToHoursMinutes(topProductiveMins);
+      return `You spent ${formatted} on ${topProductiveCat} today — your largest productive activity.`;
+    }
 
     if (codingMins >= 120 && exerciseMins >= 30) {
       return "High deep work backed with intentional movement. You balanced cognitive output with physical health.";
-    }
-
-    if (codingMins >= 150) {
-      return "You invested significant time in learning and building today. Deep focus sessions drove meaningful output.";
     }
 
     if (socialMins > 120 && codingMins < 60) {

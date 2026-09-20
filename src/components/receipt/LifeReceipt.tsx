@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LifeReceiptData, ThemeConfig, Language } from '../../types';
 import { DotLeaderItem } from './DotLeaderItem';
 import { ReceiptSection } from './ReceiptSection';
@@ -22,7 +22,19 @@ export const LifeReceipt: React.FC<LifeReceiptProps> = ({
   language = 'en',
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isFeeding, setIsFeeding] = useState(false);
   const activeTheme = themeConfig || THEMES[0];
+
+  useEffect(() => {
+    setIsFeeding(true);
+    const timer = setTimeout(() => setIsFeeding(false), 550);
+    return () => clearTimeout(timer);
+  }, [receiptData.receiptId]);
+
+  const triggerFeed = () => {
+    setIsFeeding(true);
+    setTimeout(() => setIsFeeding(false), 550);
+  };
 
   const loc = (key: TranslationKey, fallback: string) => getTranslation(language, key) || fallback;
 
@@ -101,6 +113,17 @@ export const LifeReceipt: React.FC<LifeReceiptProps> = ({
           <Button
             variant="ghost"
             size="sm"
+            onClick={triggerFeed}
+            aria-label="Feed Thermal Docket"
+            title="Simulate thermal paper feed animation"
+          >
+            <span>🖨️</span>
+            <span className="hidden sm:inline ml-1">Feed</span>
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={handleCopyText}
             aria-label={copied ? loc('receiptCopied', '✓ Copied') : loc('receiptCopy', 'Copy Text')}
             title="Copy monospace text"
@@ -134,7 +157,9 @@ export const LifeReceipt: React.FC<LifeReceiptProps> = ({
 
       {/* Main Thermal Receipt Container */}
       <article
-        className="receipt-container w-full font-mono shadow-receipt-lg transition-all rounded-sm overflow-hidden relative border"
+        className={`receipt-container w-full font-mono shadow-receipt-lg transition-all rounded-sm overflow-hidden relative border ${
+          isFeeding ? 'receipt-feed-anim' : ''
+        }`}
         style={{
           backgroundColor: activeTheme.receiptBg,
           color: activeTheme.receiptText,

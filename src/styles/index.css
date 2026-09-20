@@ -17,6 +17,39 @@
   }
 }
 
+/* Accessibility: Respect prefers-reduced-motion across the entire application */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Realistic Thermal Receipt Feeding Animation */
+@keyframes thermal-feed {
+  0% {
+    transform: translateY(-16px);
+    opacity: 0.85;
+    clip-path: polygon(0 0, 100% 0, 100% 15%, 0 15%);
+  }
+  60% {
+    clip-path: polygon(0 0, 100% 0, 100% 80%, 0 80%);
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+  }
+}
+
+.receipt-feed-anim {
+  animation: thermal-feed 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* Thermal Paper Jagged Edge Effect */
 .receipt-tear-top {
   background: radial-gradient(circle at 10px -5px, transparent 12px, var(--receipt-paper-color, #faf8f5) 13px) repeat-x;
