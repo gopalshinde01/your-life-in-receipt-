@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route } from 'react-router-dom';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { SkipLink } from './components/layout/SkipLink';
@@ -39,7 +39,7 @@ export function App() {
   };
 
   return (
-    <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+    <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <div className="min-h-screen flex flex-col bg-neutral-950 text-neutral-100 selection:bg-amber-500 selection:text-neutral-950">
         <SkipLink />
         <Header
@@ -98,7 +98,7 @@ export function App() {
         <Footer />
         <ToastContainer toasts={toasts} onDismiss={removeToast} />
       </div>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
