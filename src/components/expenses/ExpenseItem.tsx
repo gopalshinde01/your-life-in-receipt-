@@ -7,12 +7,14 @@ export interface ExpenseItemProps {
   expense: Expense;
   currency?: string;
   onDelete: (id: string) => void;
+  onEdit?: (expense: Expense) => void;
 }
 
 const ExpenseItemComponent: React.FC<ExpenseItemProps> = ({
   expense,
   currency = '₹',
   onDelete,
+  onEdit,
 }) => {
   return (
     <article className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 hover:border-neutral-700/80 transition-colors flex items-center justify-between gap-4">
@@ -30,10 +32,22 @@ const ExpenseItemComponent: React.FC<ExpenseItemProps> = ({
         </h4>
       </div>
 
-      <div className="flex items-center gap-3 flex-shrink-0">
-        <span className="text-sm sm:text-base font-bold font-mono text-emerald-400">
+      <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+        <span className="text-sm sm:text-base font-bold font-mono text-emerald-400 mr-1">
           {formatCurrency(expense.amount, currency)}
         </span>
+        {onEdit && (
+          <button
+            type="button"
+            onClick={() => onEdit(expense)}
+            aria-label={`Edit expense ${expense.description}`}
+            className="text-neutral-400 hover:text-amber-400 p-2 rounded-lg hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+        )}
         <button
           type="button"
           onClick={() => onDelete(expense.id)}

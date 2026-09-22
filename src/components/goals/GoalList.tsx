@@ -8,6 +8,7 @@ export interface GoalListProps {
   onUpdateProgress: (id: string, progress: number) => void;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit?: (goal: Goal) => void;
   onAddClick?: () => void;
 }
 
@@ -16,6 +17,7 @@ export const GoalList: React.FC<GoalListProps> = ({
   onUpdateProgress,
   onToggleComplete,
   onDelete,
+  onEdit,
   onAddClick,
 }) => {
   if (goals.length === 0) {
@@ -38,6 +40,7 @@ export const GoalList: React.FC<GoalListProps> = ({
           onUpdateProgress={onUpdateProgress}
           onToggleComplete={onToggleComplete}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { PageContainer } from '../components/layout/PageContainer';
 import { ChartCard } from '../components/analytics/ChartCard';
 import { CategoryBreakdown, CategoryDataPoint } from '../components/analytics/CategoryBreakdown';
+import { WeeklyTrendCharts } from '../components/analytics/WeeklyTrendCharts';
 import { Card } from '../components/common/Card';
 import { useLifeData } from '../hooks/useLifeData';
 import { groupTimeByCategory, groupExpensesByCategory, calculateTotalTime, calculateTotalExpenses } from '../utils/calculations';
@@ -12,7 +13,7 @@ export interface AnalyticsPageProps {
 }
 
 export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ lifeData }) => {
-  const { activities, expenses, profile } = lifeData;
+  const { activities, expenses, goals, moods, profile } = lifeData;
 
   const totalTimeMinutes = useMemo(() => calculateTotalTime(activities), [activities]);
   const totalExpensesAmount = useMemo(() => calculateTotalExpenses(expenses), [expenses]);
@@ -61,6 +62,15 @@ export const AnalyticsPage: React.FC<AnalyticsPageProps> = ({ lifeData }) => {
       subtitle="Analyze where your waking hours and financial assets are allocated across categories."
     >
       <div className="space-y-8">
+        {/* 7-Day Performance Trends */}
+        <WeeklyTrendCharts
+          activities={activities}
+          expenses={expenses}
+          goals={goals}
+          moods={moods}
+          currency={profile.currency}
+        />
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Time Distribution Chart Card */}
           <ChartCard

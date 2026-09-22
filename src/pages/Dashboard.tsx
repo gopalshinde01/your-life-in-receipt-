@@ -1,15 +1,16 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { PageContainer } from '../components/layout/PageContainer';
 import { QuickSummary } from '../components/dashboard/QuickSummary';
 import { ScoreOverview } from '../components/dashboard/ScoreOverview';
+import { TodayFocus } from '../components/dashboard/TodayFocus';
+import { RecentEntries } from '../components/dashboard/RecentEntries';
 import { ActivityList } from '../components/activities/ActivityList';
 import { ExpenseList } from '../components/expenses/ExpenseList';
 import { Button } from '../components/common/Button';
 import { ROUTES } from '../constants';
 import { useLifeData } from '../hooks/useLifeData';
 import { calculateTotalTime, calculateTotalExpenses, calculateLifeScore, calculateMoodAverage } from '../utils/calculations';
-
 import { TranslationKey } from '../i18n/translations';
 
 export interface DashboardProps {
@@ -18,15 +19,36 @@ export interface DashboardProps {
 }
 
 export const DashboardPage: React.FC<DashboardProps> = ({ lifeData, t }) => {
-  const { activities, expenses, goals, moods, profile, deleteActivity, deleteExpense } = lifeData;
+  const { activities, expenses, goals, moods, notes = [], profile, deleteActivity, deleteExpense } = lifeData;
 
-  const totalMinutes = useMemo(() => calculateTotalTime(activities), [activities]);
-  const totalExpenses = useMemo(() => calculateTotalExpenses(expenses), [expenses]);
+  const [timeScope, setTimeScope] = useState<'today' | 'all'>('today');
+  const todayIso = useMemo(() => new Date().toISOString().split('T')[0], []);
+
+  // Filter datasets based on selected time scope
+  const scopedActivities = useMemo(() => {
+    return timeScope === 'today' ? activities.filter(a => a.date === todayIso) : activities;
+  }, [activities, timeScope, todayIso]);
+
+  const scopedExpenses = useMemo(() => {
+    return timeScope === 'today' ? expenses.filter(e => e.date === todayIso) : expenses;
+  }, [expenses, timeScope, todayIso]);
+
+  const scopedMoods = useMemo(() => {
+    return timeScope === 'today' ? moods.filter(m => m.date === todayIso) : moods;
+  }, [moods, timeScope, todayIso]);
+
+  const totalMinutes = useMemo(() => calculateTotalTime(scopedActivities), [scopedActivities]);
+  const totalExpenses = useMemo(() => calculateTotalExpenses(scopedExpenses), [scopedExpenses]);
   const activeGoals = useMemo(() => goals.filter(g => !g.completed).length, [goals]);
   const completedGoals = useMemo(() => goals.filter(g => g.completed).length, [goals]);
-  const avgMood = useMemo(() => calculateMoodAverage(moods).average, [moods]);
+  const avgMood = useMemo(() => calculateMoodAverage(scopedMoods).average, [scopedMoods]);
 
-  const lifeScore = useMemo(() => calculateLifeScore({ activities, goals, moods }), [activities, goals, moods]);
+  // For life score: if today has entries, evaluate today; else fallback to all-time so score isn't zero on fresh days
+  const lifeScoreData = useMemo(() => {
+    const act = scopedActivities.length > 0 ? scopedActivities : activities;
+    const md = scopedMoods.length > 0 ? scopedMoods : moods;
+    return calculateLifeScore({ activities: act, goals, moods: md });
+  }, [scopedActivities, activities, scopedMoods, moods, goals]);
 
   const getLabel = (key: TranslationKey, fallback: string) => (t ? t(key) : fallback);
 
@@ -50,6 +72,51 @@ export const DashboardPage: React.FC<DashboardProps> = ({ lifeData, t }) => {
       }
     >
       <div className="space-y-8">
+        {/* Scope Selector Bar */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 p-3 rounded-xl bg-neutral-900/60 border border-neutral-800">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-semibold text-neutral-400 uppercase tracking-wider">
+              Summary Period:
+            </span>
+            <div className="flex items-center p-0.5 rounded-lg bg-neutral-950 border border-neutral-800">
+              <button
+                type="button"
+                onClick={() => setTimeScope('today')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  timeScope === 'today'
+                    ? 'bg-amber-500 text-neutral-950 font-bold shadow-sm'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                Today ({todayIso})
+              </button>
+              <button
+                type="button"
+                onClick={() => setTimeScope('all')}
+                className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${
+                  timeScope === 'all'
+                    ? 'bg-amber-500 text-neutral-950 font-bold shadow-sm'
+                    : 'text-neutral-400 hover:text-neutral-200'
+                }`}
+              >
+                All-Time Total
+              </button>
+            </div>
+          </div>
+
+          <div className="text-xs text-neutral-400">
+            {timeScope === 'today' ? (
+              <span>
+                Showing logs for today: <strong className="text-amber-400 font-mono">{scopedActivities.length}</strong> acts, <strong className="text-amber-400 font-mono">{scopedExpenses.length}</strong> exps
+              </span>
+            ) : (
+              <span>
+                Showing cumulative totals across all historical entries
+              </span>
+            )}
+          </div>
+        </div>
+
         {/* Quick KPI Stat Cards */}
         <QuickSummary
           totalMinutes={totalMinutes}
@@ -62,9 +129,21 @@ export const DashboardPage: React.FC<DashboardProps> = ({ lifeData, t }) => {
         />
 
         {/* Life Score Calculation Overview */}
-        <ScoreOverview scoreData={lifeScore} t={t} />
+        <ScoreOverview scoreData={lifeScoreData} t={t} />
 
-        {/* Two-Column Grid: Recent Activities & Recent Expenses */}
+        {/* Today's Focus Section */}
+        <TodayFocus goals={goals} />
+
+        {/* Unified Recent Entries Stream */}
+        <RecentEntries
+          activities={activities}
+          expenses={expenses}
+          moods={moods}
+          notes={notes}
+          currency={profile.currency}
+        />
+
+        {/* Two-Column Detailed Lists: Activities & Expenses */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Left: Recent Activities */}
           <section className="space-y-4">
@@ -107,3 +186,4 @@ export const DashboardPage: React.FC<DashboardProps> = ({ lifeData, t }) => {
     </PageContainer>
   );
 };
+

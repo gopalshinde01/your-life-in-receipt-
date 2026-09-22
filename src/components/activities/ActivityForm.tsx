@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ActivityCategory } from '../../types';
+import { Activity, ActivityCategory } from '../../types';
 import { ACTIVITY_CATEGORIES } from '../../constants';
 import { Input } from '../common/Input';
 import { Select } from '../common/Select';
@@ -7,6 +7,8 @@ import { Button } from '../common/Button';
 import { validateDurationMinutes } from '../../utils/validators';
 
 export interface ActivityFormProps {
+  initialData?: Partial<Activity>;
+  submitLabel?: string;
   onSubmit: (data: {
     title: string;
     category: ActivityCategory;
@@ -17,14 +19,21 @@ export interface ActivityFormProps {
   onCancel?: () => void;
 }
 
-export const ActivityForm: React.FC<ActivityFormProps> = ({ onSubmit, onCancel }) => {
+export const ActivityForm: React.FC<ActivityFormProps> = ({
+  initialData,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}) => {
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState<ActivityCategory>('Coding');
-  const [durationMinutes, setDurationMinutes] = useState<string>('60');
-  const [date, setDate] = useState(todayIso);
-  const [notes, setNotes] = useState('');
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [category, setCategory] = useState<ActivityCategory>(initialData?.category || 'Coding');
+  const [durationMinutes, setDurationMinutes] = useState<string>(
+    initialData?.durationMinutes !== undefined ? String(initialData.durationMinutes) : '60'
+  );
+  const [date, setDate] = useState(initialData?.date || todayIso);
+  const [notes, setNotes] = useState(initialData?.notes || '');
 
   const [errors, setErrors] = useState<{ title?: string; duration?: string }>({});
 
@@ -56,10 +65,12 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ onSubmit, onCancel }
       notes: notes.trim() || undefined,
     });
 
-    // Reset form fields
-    setTitle('');
-    setDurationMinutes('60');
-    setNotes('');
+    if (!initialData) {
+      // Reset form fields only on creation
+      setTitle('');
+      setDurationMinutes('60');
+      setNotes('');
+    }
   };
 
   const categoryOptions = ACTIVITY_CATEGORIES.map(cat => ({
@@ -140,7 +151,7 @@ export const ActivityForm: React.FC<ActivityFormProps> = ({ onSubmit, onCancel }
           </Button>
         )}
         <Button variant="primary" size="md" type="submit">
-          Log Activity
+          {submitLabel || (initialData ? 'Update Activity' : 'Log Activity')}
         </Button>
       </div>
     </form>

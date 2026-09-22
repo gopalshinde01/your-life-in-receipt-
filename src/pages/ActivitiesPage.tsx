@@ -5,6 +5,7 @@ import { ActivityForm } from '../components/activities/ActivityForm';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { Card } from '../components/common/Card';
+import { Activity } from '../types';
 import { ACTIVITY_CATEGORIES } from '../constants';
 import { useLifeData } from '../hooks/useLifeData';
 import { calculateTotalTime } from '../utils/calculations';
@@ -16,8 +17,9 @@ export interface ActivitiesPageProps {
 }
 
 export const ActivitiesPage: React.FC<ActivitiesPageProps> = ({ lifeData, onShowToast }) => {
-  const { activities, addActivity, deleteActivity } = lifeData;
+  const { activities, addActivity, updateActivity, deleteActivity } = lifeData;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -41,6 +43,17 @@ export const ActivitiesPage: React.FC<ActivitiesPageProps> = ({ lifeData, onShow
       addActivity(data);
       setIsModalOpen(false);
       onShowToast('Activity Added', `${data.title} added successfully.`, 'success');
+    } catch (err: any) {
+      onShowToast('Error', err.message, 'error');
+    }
+  };
+
+  const handleEditSubmit = (data: Parameters<typeof addActivity>[0]) => {
+    if (!editingActivity) return;
+    try {
+      updateActivity(editingActivity.id, data);
+      setEditingActivity(null);
+      onShowToast('Activity Updated', `"${data.title}" updated successfully.`, 'success');
     } catch (err: any) {
       onShowToast('Error', err.message, 'error');
     }
@@ -120,6 +133,7 @@ export const ActivitiesPage: React.FC<ActivitiesPageProps> = ({ lifeData, onShow
         <ActivityList
           activities={filteredActivities}
           onDelete={deleteActivity}
+          onEdit={setEditingActivity}
           onAddClick={() => setIsModalOpen(true)}
         />
 
@@ -133,6 +147,22 @@ export const ActivitiesPage: React.FC<ActivitiesPageProps> = ({ lifeData, onShow
             onSubmit={handleAddSubmit}
             onCancel={() => setIsModalOpen(false)}
           />
+        </Modal>
+
+        {/* Edit Activity Accessible Modal */}
+        <Modal
+          isOpen={Boolean(editingActivity)}
+          onClose={() => setEditingActivity(null)}
+          title="Edit Tracked Activity"
+        >
+          {editingActivity && (
+            <ActivityForm
+              initialData={editingActivity}
+              submitLabel="Update Activity"
+              onSubmit={handleEditSubmit}
+              onCancel={() => setEditingActivity(null)}
+            />
+          )}
         </Modal>
       </div>
     </PageContainer>

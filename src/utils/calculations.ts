@@ -242,3 +242,7 @@ export function groupExpensesByCategory(expenses: Expense[], currency = '₹', f
     }))
     .sort((a, b) => b.amount - a.amount);
 }
+
+// Named aliases for clean API ergonomics
+export const calculateTimeTracked = calculateTotalTime;
+export const calculateAverageMood = calculateMoodAverage;

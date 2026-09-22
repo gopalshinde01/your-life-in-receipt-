@@ -6,12 +6,14 @@ import { EmptyState } from '../common/EmptyState';
 export interface ActivityListProps {
   activities: Activity[];
   onDelete: (id: string) => void;
+  onEdit?: (activity: Activity) => void;
   onAddClick?: () => void;
 }
 
 export const ActivityList: React.FC<ActivityListProps> = ({
   activities,
   onDelete,
+  onEdit,
   onAddClick,
 }) => {
   if (activities.length === 0) {
@@ -32,6 +34,7 @@ export const ActivityList: React.FC<ActivityListProps> = ({
           key={activity.id}
           activity={activity}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

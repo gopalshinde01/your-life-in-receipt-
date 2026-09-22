@@ -7,6 +7,7 @@ export interface GoalCardProps {
   onUpdateProgress: (id: string, progress: number) => void;
   onToggleComplete: (id: string) => void;
   onDelete: (id: string) => void;
+  onEdit?: (goal: Goal) => void;
 }
 
 export const GoalCard: React.FC<GoalCardProps> = ({
@@ -14,6 +15,7 @@ export const GoalCard: React.FC<GoalCardProps> = ({
   onUpdateProgress,
   onToggleComplete,
   onDelete,
+  onEdit,
 }) => {
   return (
     <article className={`p-5 rounded-2xl border transition-all ${
@@ -51,6 +53,18 @@ export const GoalCard: React.FC<GoalCardProps> = ({
               {goal.completed ? '✓' : '○'}
             </span>
           </button>
+          {onEdit && (
+            <button
+              type="button"
+              onClick={() => onEdit(goal)}
+              aria-label={`Edit goal ${goal.title}`}
+              className="text-neutral-400 hover:text-amber-400 p-2 rounded-lg hover:bg-neutral-800 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+            >
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+          )}
           <button
             type="button"
             onClick={() => onDelete(goal.id)}
@@ -64,9 +78,14 @@ export const GoalCard: React.FC<GoalCardProps> = ({
         </div>
       </div>
 
-      <h4 className={`text-base font-semibold mb-3 ${goal.completed ? 'line-through text-neutral-400' : 'text-neutral-100'}`}>
+      <h4 className={`text-base font-semibold ${goal.description ? 'mb-1' : 'mb-3'} ${goal.completed ? 'line-through text-neutral-400' : 'text-neutral-100'}`}>
         {goal.title}
       </h4>
+      {goal.description && (
+        <p className="text-xs text-neutral-400 mb-3 line-clamp-2">
+          {goal.description}
+        </p>
+      )}
 
       {/* Progress Bar & Slider */}
       <div className="space-y-1.5">

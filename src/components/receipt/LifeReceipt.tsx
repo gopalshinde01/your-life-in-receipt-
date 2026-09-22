@@ -175,10 +175,10 @@ export const LifeReceipt: React.FC<LifeReceiptProps> = ({
           {/* Header */}
           <header className="text-center border-b-2 border-current pb-3">
             <h1 className="text-xl sm:text-2xl font-black tracking-tight uppercase">
-              {loc('receiptTitle', 'YOUR LIFE RECEIPT')}
+              {loc('receiptTitle', 'LIFE IN RECEIPT')}
             </h1>
             <p className="text-[11px] opacity-80 mt-0.5 tracking-wider uppercase">
-              {loc('receiptSubtitle', 'Transactions of Living & Growth')}
+              {loc('receiptSubtitle', 'Daily Ledger')}
             </p>
             <div className="mt-2 text-xs flex justify-between font-mono font-medium opacity-90">
               <span>DATE: {receiptData.dateFormatted}</span>
@@ -188,6 +188,48 @@ export const LifeReceipt: React.FC<LifeReceiptProps> = ({
               <span>USER: {receiptData.userName}</span>
             </div>
           </header>
+
+          {/* Daily Ledger Executive Digest */}
+          <div className="py-2.5 px-3 rounded border border-dashed border-current/40 bg-current/[0.03] space-y-1.5 text-xs">
+            <div className="text-[10px] font-bold tracking-wider uppercase opacity-75 border-b border-current/20 pb-1 flex justify-between">
+              <span>DAILY LEDGER</span>
+              <span>SUMMARY</span>
+            </div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-1 pt-0.5">
+              <div>
+                <span className="text-[10px] opacity-75 block">TIME INVESTED</span>
+                <span className="font-bold font-mono">{receiptData.totalTimeFormatted}</span>
+              </div>
+              <div>
+                <span className="text-[10px] opacity-75 block">MONEY SPENT</span>
+                <span className="font-bold font-mono">{receiptData.totalExpensesFormatted}</span>
+              </div>
+              <div>
+                <span className="text-[10px] opacity-75 block">ACTIVITIES</span>
+                <span className="font-bold font-mono">{receiptData.activitiesCount ?? receiptData.timeSpentByCategory.length}</span>
+              </div>
+              <div>
+                <span className="text-[10px] opacity-75 block">GOALS COMPLETED</span>
+                <span className="font-bold font-mono">{receiptData.completedGoalsCount ?? receiptData.completedAchievements.length}</span>
+              </div>
+              <div>
+                <span className="text-[10px] opacity-75 block">AVERAGE MOOD</span>
+                <span className="font-bold font-mono">
+                  {receiptData.averageMood !== null ? `${receiptData.averageMood}/10` : 'N/A'}
+                </span>
+              </div>
+              <div>
+                <span className="text-[10px] opacity-75 block">LIFE SCORE</span>
+                <span className="font-bold font-mono">{receiptData.lifeScoreBreakdown.finalScore}/100</span>
+              </div>
+            </div>
+            {receiptData.todayHighlight && (
+              <div className="pt-1.5 border-t border-current/20">
+                <span className="text-[10px] opacity-75 block">TODAY'S HIGHLIGHT</span>
+                <p className="font-medium italic text-[11px] leading-snug">"{receiptData.todayHighlight}"</p>
+              </div>
+            )}
+          </div>
 
           {/* Time Spent Section */}
           <ReceiptSection title={loc('receiptTimeSpent', 'TIME SPENT')}>

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { GoalCard } from '../components/goals/GoalCard';
+import { GoalForm } from '../components/goals/GoalForm';
 import { Goal } from '../types';
 
 describe('Goals Component & Progress', () => {
@@ -46,5 +47,56 @@ describe('Goals Component & Progress', () => {
     await user.click(toggleBtn);
 
     expect(handleToggle).toHaveBeenCalledWith('goal_test');
+  });
+
+  it('invokes onEdit when edit button is clicked on GoalCard', async () => {
+    const user = userEvent.setup();
+    const handleEdit = vi.fn();
+
+    render(
+      <GoalCard
+        goal={mockGoal}
+        onUpdateProgress={vi.fn()}
+        onToggleComplete={vi.fn()}
+        onDelete={vi.fn()}
+        onEdit={handleEdit}
+      />
+    );
+
+    const editBtn = screen.getByRole('button', { name: /Edit goal/i });
+    await user.click(editBtn);
+
+    expect(handleEdit).toHaveBeenCalledWith(mockGoal);
+  });
+
+  it('prepopulates initialData in GoalForm and updates goal on submit', async () => {
+    const user = userEvent.setup();
+    const handleSubmit = vi.fn();
+
+    render(
+      <GoalForm
+        initialData={mockGoal}
+        submitLabel="Update Goal"
+        onSubmit={handleSubmit}
+      />
+    );
+
+    const titleInput = screen.getByLabelText(/Goal Title/i) as HTMLInputElement;
+    const submitBtn = screen.getByRole('button', { name: /Update Goal/i });
+
+    expect(titleInput.value).toBe('Ship Optimized Frontend Hackathon Project');
+
+    await user.clear(titleInput);
+    await user.type(titleInput, 'Ship Production Release v2');
+    await user.click(submitBtn);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Ship Production Release v2',
+        category: 'Engineering',
+        progress: 80,
+      })
+    );
   });
 });

@@ -51,6 +51,19 @@ export const receiptService = {
     const receiptId = `RCPT-${datePart}-${Math.abs((totalExpenses + totalTimeMinutes + lifeScoreBreakdown.finalScore) % 9999).toString().padStart(4, '0')}`;
     const barcodeValue = `*${receiptId}*`;
 
+    // Compute count metrics and highlight
+    const filteredActivities = filterDate ? activities.filter(a => a.date === filterDate) : activities;
+    const activitiesCount = filteredActivities.length;
+    const completedGoalsCount = completedAchievements.length;
+
+    let todayHighlight = 'Documented daily living and disciplined execution.';
+    if (completedAchievements.length > 0) {
+      todayHighlight = `Completed milestone: "${completedAchievements[0]}".`;
+    } else if (filteredActivities.length > 0) {
+      const topAct = [...filteredActivities].sort((a, b) => b.durationMinutes - a.durationMinutes)[0];
+      todayHighlight = `Invested ${formatMinutesToHoursMinutes(topAct.durationMinutes)} in "${topAct.title}".`;
+    }
+
     return {
       receiptId,
       dateFormatted: formatReceiptDate(filterDate),
@@ -68,6 +81,9 @@ export const receiptService = {
       lifeScoreBreakdown,
       aiInsight,
       barcodeValue,
+      activitiesCount,
+      completedGoalsCount,
+      todayHighlight,
     };
   },
 

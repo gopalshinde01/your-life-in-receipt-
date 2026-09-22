@@ -43,7 +43,7 @@ export const QuickSummary: React.FC<QuickSummaryProps> = ({
 
       <StatCard
         title={getLabel('goalsProgress', 'Goals Progress')}
-        value={`${completedGoalsCount} Done`}
+        value={`${completedGoalsCount} Completed`}
         subtitle={`${activeGoalsCount} in progress`}
         icon={<span className="text-xl">🎯</span>}
         trend={{ direction: completedGoalsCount > 0 ? 'up' : 'neutral', label: `${activeGoalsCount + completedGoalsCount} total goals` }}

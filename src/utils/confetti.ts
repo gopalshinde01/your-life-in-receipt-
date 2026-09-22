@@ -15,9 +15,17 @@ export function triggerConfetti(durationMs: number = 2200): void {
   canvas.style.zIndex = '99999';
   document.body.appendChild(canvas);
 
-  const ctx = canvas.getContext('2d');
+  let ctx: CanvasRenderingContext2D | null = null;
+  try {
+    ctx = canvas.getContext ? (canvas.getContext('2d') as CanvasRenderingContext2D | null) : null;
+  } catch {
+    ctx = null;
+  }
+
   if (!ctx) {
-    document.body.removeChild(canvas);
+    if (canvas.parentNode) {
+      document.body.removeChild(canvas);
+    }
     return;
   }
 

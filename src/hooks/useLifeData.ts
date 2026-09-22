@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Activity, Expense, Goal, MoodEntry, UserProfile } from '../types';
+import { Activity, Expense, Goal, MoodEntry, NoteEntry, UserProfile } from '../types';
 import { STORAGE_KEYS } from '../constants';
 import { storageService } from '../services/storageService';
 import { SEED_ACTIVITIES, SEED_EXPENSES, SEED_GOALS, SEED_MOODS, SEED_PROFILE } from '../data/initialSeedData';
@@ -23,6 +23,10 @@ export function useLifeData() {
     storageService.getItem<MoodEntry[]>(STORAGE_KEYS.MOODS, SEED_MOODS)
   );
 
+  const [notes, setNotes] = useState<NoteEntry[]>(() =>
+    storageService.getItem<NoteEntry[]>(STORAGE_KEYS.NOTES, [])
+  );
+
   const [profile, setProfile] = useState<UserProfile>(() =>
     storageService.getItem<UserProfile>(STORAGE_KEYS.PROFILE, SEED_PROFILE)
   );
@@ -43,6 +47,10 @@ export function useLifeData() {
   useEffect(() => {
     storageService.setItem(STORAGE_KEYS.MOODS, moods);
   }, [moods]);
+
+  useEffect(() => {
+    storageService.setItem(STORAGE_KEYS.NOTES, notes);
+  }, [notes]);
 
   useEffect(() => {
     storageService.setItem(STORAGE_KEYS.PROFILE, profile);
@@ -211,6 +219,38 @@ export function useLifeData() {
     return newMood;
   }, []);
 
+  // Note Actions
+  const addNote = useCallback((data: { title: string; description: string; date?: string }) => {
+    const safeDate = data.date || new Date().toISOString().slice(0, 10);
+    const newNote: NoteEntry = {
+      id: generateSafeId('note'),
+      title: sanitizeString(data.title, 100) || 'Untitled Note',
+      description: sanitizeString(data.description, 1000) || '',
+      date: safeDate,
+      createdAt: Date.now(),
+    };
+    setNotes(prev => [newNote, ...prev]);
+    return newNote;
+  }, []);
+
+  const updateNote = useCallback((id: string, updates: Partial<Omit<NoteEntry, 'id' | 'createdAt'>>) => {
+    setNotes(prev =>
+      prev.map(n => {
+        if (n.id !== id) return n;
+        return {
+          ...n,
+          ...updates,
+          title: updates.title !== undefined ? sanitizeString(updates.title, 100) || n.title : n.title,
+          description: updates.description !== undefined ? sanitizeString(updates.description, 1000) : n.description,
+        };
+      })
+    );
+  }, []);
+
+  const deleteNote = useCallback((id: string) => {
+    setNotes(prev => prev.filter(n => n.id !== id));
+  }, []);
+
   // Profile Actions
   const updateProfile = useCallback((updates: Partial<UserProfile>) => {
     setProfile(prev => ({
@@ -229,6 +269,7 @@ export function useLifeData() {
     setExpenses(SEED_EXPENSES);
     setGoals(SEED_GOALS);
     setMoods(SEED_MOODS);
+    setNotes([]);
     setProfile(SEED_PROFILE);
   }, []);
 
@@ -238,6 +279,7 @@ export function useLifeData() {
     setExpenses([]);
     setGoals([]);
     setMoods([]);
+    setNotes([]);
   }, []);
 
   return {
@@ -245,6 +287,7 @@ export function useLifeData() {
     expenses,
     goals,
     moods,
+    notes,
     profile,
     addActivity,
     updateActivity,
@@ -258,6 +301,9 @@ export function useLifeData() {
     toggleGoalCompleted,
     deleteGoal,
     logMood,
+    addNote,
+    updateNote,
+    deleteNote,
     updateProfile,
     resetToSeedData,
     clearAllData,

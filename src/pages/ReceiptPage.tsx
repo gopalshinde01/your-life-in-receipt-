@@ -115,12 +115,28 @@ export const ReceiptPage: React.FC<ReceiptPageProps> = ({
     }
   };
 
+  const handlePrevDay = () => {
+    const current = new Date(selectedDate || todayIso);
+    current.setDate(current.getDate() - 1);
+    setSelectedDate(current.toISOString().slice(0, 10));
+  };
+
+  const handleNextDay = () => {
+    const current = new Date(selectedDate || todayIso);
+    current.setDate(current.getDate() + 1);
+    setSelectedDate(current.toISOString().slice(0, 10));
+  };
+
+  const handleToday = () => {
+    setSelectedDate(todayIso);
+  };
+
   return (
     <PageContainer
       title="Your Life Receipt"
       subtitle="A tangible, itemized ledger of what you gave your time, energy, and capital to."
       action={
-        <div className="no-print flex items-center gap-2.5 flex-wrap">
+        <div className="no-print flex items-center gap-2 flex-wrap">
           <ThemeLanguageControl
             currentTheme={currentTheme}
             onSelectTheme={onSelectTheme}
@@ -128,16 +144,46 @@ export const ReceiptPage: React.FC<ReceiptPageProps> = ({
             onSelectLanguage={onSelectLanguage}
             variant="compact"
           />
-          <label htmlFor="receipt-date-filter" className="text-xs text-neutral-400 font-medium sr-only">
-            Filter Receipt Date
-          </label>
-          <input
-            id="receipt-date-filter"
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="px-3 py-1.5 rounded-lg bg-neutral-800 border border-neutral-700 text-neutral-200 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 font-mono min-h-[44px]"
-          />
+          <div className="flex items-center gap-1 bg-neutral-900 border border-neutral-800 p-1 rounded-xl">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handlePrevDay}
+              aria-label="Previous day receipt"
+              title="Previous day"
+              className="text-xs px-2 py-1 h-8"
+            >
+              ← Prev
+            </Button>
+            <input
+              id="receipt-date-filter"
+              type="date"
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="px-2.5 py-1 rounded bg-neutral-800 border border-neutral-700 text-neutral-200 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 font-mono h-8"
+              aria-label="Filter receipt date"
+            />
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleNextDay}
+              aria-label="Next day receipt"
+              title="Next day"
+              className="text-xs px-2 py-1 h-8"
+            >
+              Next →
+            </Button>
+            {selectedDate !== todayIso && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleToday}
+                className="text-xs px-2 py-1 h-8 text-amber-400"
+              >
+                Today
+              </Button>
+            )}
+          </div>
         </div>
       }
     >

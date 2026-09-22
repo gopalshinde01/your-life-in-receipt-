@@ -48,4 +48,48 @@ describe('Expense Component & Form Validation', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText(/Amount cannot be negative/i)).toBeInTheDocument();
   });
+
+  it('prepopulates initialData in edit mode and allows updating', async () => {
+    const user = userEvent.setup();
+    const handleSubmit = vi.fn();
+
+    const existingExpense = {
+      id: 'exp_123',
+      amount: 450,
+      category: 'Education' as const,
+      description: 'System Architecture Handbook',
+      date: '2026-03-20',
+      createdAt: Date.now(),
+    };
+
+    render(
+      <ExpenseForm
+        initialData={existingExpense}
+        submitLabel="Update Expense"
+        currency="₹"
+        onSubmit={handleSubmit}
+      />
+    );
+
+    const amountInput = screen.getByLabelText(/Amount/i) as HTMLInputElement;
+    const descInput = screen.getByLabelText(/Description/i) as HTMLInputElement;
+    const submitBtn = screen.getByRole('button', { name: /Update Expense/i });
+
+    expect(amountInput.value).toBe('450');
+    expect(descInput.value).toBe('System Architecture Handbook');
+
+    await user.clear(amountInput);
+    await user.type(amountInput, '550');
+    await user.clear(descInput);
+    await user.type(descInput, 'Advanced System Architecture Handbook');
+    await user.click(submitBtn);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        amount: 550,
+        description: 'Advanced System Architecture Handbook',
+      })
+    );
+  });
 });

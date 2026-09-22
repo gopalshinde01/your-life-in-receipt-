@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
+import { Goal } from '../../types';
 import { Input } from '../common/Input';
 import { Button } from '../common/Button';
 import { clampGoalProgress } from '../../utils/validators';
 
 export interface GoalFormProps {
+  initialData?: Partial<Goal>;
+  submitLabel?: string;
   onSubmit: (data: {
     title: string;
+    description?: string;
     category: string;
     targetDate: string;
     progress: number;
@@ -14,13 +18,21 @@ export interface GoalFormProps {
   onCancel?: () => void;
 }
 
-export const GoalForm: React.FC<GoalFormProps> = ({ onSubmit, onCancel }) => {
+export const GoalForm: React.FC<GoalFormProps> = ({
+  initialData,
+  submitLabel,
+  onSubmit,
+  onCancel,
+}) => {
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const [title, setTitle] = useState('');
-  const [category, setCategory] = useState('Learning');
-  const [targetDate, setTargetDate] = useState(todayIso);
-  const [progress, setProgress] = useState<number>(0);
+  const [title, setTitle] = useState(initialData?.title || '');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [category, setCategory] = useState(initialData?.category || 'Learning');
+  const [targetDate, setTargetDate] = useState(initialData?.targetDate || todayIso);
+  const [progress, setProgress] = useState<number>(
+    initialData?.progress !== undefined ? initialData.progress : 0
+  );
 
   const [errors, setErrors] = useState<{ title?: string }>({});
 
@@ -37,14 +49,18 @@ export const GoalForm: React.FC<GoalFormProps> = ({ onSubmit, onCancel }) => {
 
     onSubmit({
       title: title.trim(),
+      description: description.trim() || undefined,
       category: category.trim() || 'General',
       targetDate,
       progress: safeProgress,
       completed: safeProgress >= 100,
     });
 
-    setTitle('');
-    setProgress(0);
+    if (!initialData) {
+      setTitle('');
+      setDescription('');
+      setProgress(0);
+    }
   };
 
   return (
@@ -61,6 +77,20 @@ export const GoalForm: React.FC<GoalFormProps> = ({ onSubmit, onCancel }) => {
         error={errors.title}
         required
       />
+
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="goal-description" className="text-sm font-medium text-neutral-200">
+          Goal Description (Optional)
+        </label>
+        <textarea
+          id="goal-description"
+          rows={2}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+          placeholder="Brief explanation of the goal or target milestone..."
+          className="w-full px-3.5 py-2.5 rounded-lg bg-neutral-800/80 border border-neutral-700 text-neutral-100 placeholder-neutral-500 focus:border-amber-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-sm"
+        />
+      </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Input
@@ -105,7 +135,7 @@ export const GoalForm: React.FC<GoalFormProps> = ({ onSubmit, onCancel }) => {
           </Button>
         )}
         <Button variant="primary" size="md" type="submit">
-          Save Goal
+          {submitLabel || (initialData ? 'Update Goal' : 'Save Goal')}
         </Button>
       </div>
     </form>

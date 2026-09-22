@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExpenseCategory } from '../../types';
+import { Expense, ExpenseCategory } from '../../types';
 import { EXPENSE_CATEGORIES } from '../../constants';
 import { Input } from '../common/Input';
 import { Select } from '../common/Select';
@@ -7,6 +7,8 @@ import { Button } from '../common/Button';
 import { validateExpenseAmount } from '../../utils/validators';
 
 export interface ExpenseFormProps {
+  initialData?: Partial<Expense>;
+  submitLabel?: string;
   currency?: string;
   onSubmit: (data: {
     amount: number;
@@ -18,16 +20,20 @@ export interface ExpenseFormProps {
 }
 
 export const ExpenseForm: React.FC<ExpenseFormProps> = ({
+  initialData,
+  submitLabel,
   currency = '₹',
   onSubmit,
   onCancel,
 }) => {
   const todayIso = new Date().toISOString().slice(0, 10);
 
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState<ExpenseCategory>('Food');
-  const [description, setDescription] = useState('');
-  const [date, setDate] = useState(todayIso);
+  const [amount, setAmount] = useState(
+    initialData?.amount !== undefined ? String(initialData.amount) : ''
+  );
+  const [category, setCategory] = useState<ExpenseCategory>(initialData?.category || 'Food');
+  const [description, setDescription] = useState(initialData?.description || '');
+  const [date, setDate] = useState(initialData?.date || todayIso);
 
   const [errors, setErrors] = useState<{ amount?: string; description?: string }>({});
 
@@ -58,9 +64,11 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
       date,
     });
 
-    // Reset form
-    setAmount('');
-    setDescription('');
+    if (!initialData) {
+      // Reset form
+      setAmount('');
+      setDescription('');
+    }
   };
 
   const categoryOptions = EXPENSE_CATEGORIES.map(cat => ({
@@ -126,7 +134,7 @@ export const ExpenseForm: React.FC<ExpenseFormProps> = ({
           </Button>
         )}
         <Button variant="primary" size="md" type="submit">
-          Log Expense
+          {submitLabel || (initialData ? 'Update Expense' : 'Log Expense')}
         </Button>
       </div>
     </form>

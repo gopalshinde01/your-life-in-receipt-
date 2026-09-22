@@ -30,6 +30,7 @@ export const STORAGE_KEYS = {
   GOALS: 'life_receipt_goals_v1',
   EXPERIENCES: 'life_receipt_experiences_v1',
   MOODS: 'life_receipt_moods_v1',
+  NOTES: 'life_receipt_notes_v1',
   PROFILE: 'life_receipt_profile_v1',
   THEME: 'life_receipt_theme_v1',
   LANGUAGE: 'life_receipt_language_v1',

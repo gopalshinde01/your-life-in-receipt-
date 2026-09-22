@@ -24,14 +24,14 @@ describe('Receipt Component & Presentation', () => {
 
     // Section checks
     expect(screen.getByText(/TIME SPENT/i)).toBeInTheDocument();
-    expect(screen.getByText(/MONEY SPENT/i)).toBeInTheDocument();
-    expect(screen.getByText(/LIFE SCORE/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/MONEY SPENT/i).length).toBeGreaterThanOrEqual(1);
+    expect(screen.getAllByText(/LIFE SCORE/i).length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/THANK YOU FOR LIVING/i)).toBeInTheDocument();
 
     // Data values checks
-    expect(screen.getByText(/₹310/i)).toBeInTheDocument(); // total expenses
+    expect(screen.getAllByText(/₹310/i).length).toBeGreaterThanOrEqual(1); // total expenses
     expect(screen.getByText(/Coding/i)).toBeInTheDocument();
     expect(screen.getByText(/Food/i)).toBeInTheDocument();
-    expect(screen.getByText(/Completed project/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Completed project/i).length).toBeGreaterThanOrEqual(1);
   });
 });

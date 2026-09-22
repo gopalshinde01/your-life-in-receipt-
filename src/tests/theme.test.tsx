@@ -78,7 +78,7 @@ describe('Theme System & Resilience', () => {
     expect(handleSelect).toHaveBeenCalledWith('pure-white');
   });
 
-  it('renders merged ThemeLanguageControl in compact mode with quick 1-click switcher and popover', async () => {
+  it('renders merged ThemeLanguageControl in compact mode with preferences popover', async () => {
     const user = userEvent.setup();
     const handleThemeSelect = vi.fn();
     const handleLangSelect = vi.fn();
@@ -95,11 +95,6 @@ describe('Theme System & Resilience', () => {
       />
     );
 
-    // Quick 1-click switcher toggles to Pure White
-    const quickToggle = screen.getByRole('button', { name: /Switch to Pure White/i });
-    await user.click(quickToggle);
-    expect(handleThemeSelect).toHaveBeenCalledWith('pure-white');
-
     // Open unified preferences popover
     const preferencesTrigger = screen.getByRole('button', { name: /Display & Language settings/i });
     await user.click(preferencesTrigger);
@@ -107,6 +102,11 @@ describe('Theme System & Resilience', () => {
     expect(screen.getByRole('menu')).toBeInTheDocument();
     expect(screen.getByText('Theme / रंगसंगती')).toBeInTheDocument();
     expect(screen.getByText('Language / भाषा')).toBeInTheDocument();
+
+    // Select theme in the merged menu
+    const whiteOption = screen.getByRole('menuitemradio', { name: /Pure White \(Light\)/i });
+    await user.click(whiteOption);
+    expect(handleThemeSelect).toHaveBeenCalledWith('pure-white');
 
     // Click Hindi in the merged menu
     const hindiOption = screen.getByRole('menuitemradio', { name: /हिन्दी/i });

@@ -13,15 +13,23 @@ export interface AddEntryProps {
   onShowToast: (title: string, message?: string, type?: 'success' | 'error' | 'info' | 'warning') => void;
 }
 
-type TabType = 'activity' | 'expense' | 'goal' | 'mood';
+type TabType = 'activity' | 'expense' | 'goal' | 'mood' | 'note';
 
 export const AddEntryPage: React.FC<AddEntryProps> = ({ lifeData, onShowToast }) => {
-  const { addActivity, addExpense, addGoal, logMood, profile } = lifeData;
+  const { addActivity, addExpense, addGoal, logMood, addNote, profile } = lifeData;
   const [activeTab, setActiveTab] = useState<TabType>('activity');
+  const todayIso = new Date().toISOString().slice(0, 10);
 
   // Mood form local state
   const [moodRating, setMoodRating] = useState<number>(8);
   const [moodNote, setMoodNote] = useState('');
+  const [moodDate, setMoodDate] = useState(todayIso);
+
+  // Note form local state
+  const [noteTitle, setNoteTitle] = useState('');
+  const [noteDescription, setNoteDescription] = useState('');
+  const [noteDate, setNoteDate] = useState(todayIso);
+  const [noteErrors, setNoteErrors] = useState<{ title?: string; description?: string }>({});
 
   const handleActivitySubmit = (data: Parameters<typeof addActivity>[0]) => {
     try {
@@ -53,11 +61,37 @@ export const AddEntryPage: React.FC<AddEntryProps> = ({ lifeData, onShowToast })
   const handleMoodSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      logMood(moodRating, moodNote);
-      onShowToast('Mood Logged!', `Recorded vibe: ${moodRating}/10`, 'success');
+      const clampedRating = Math.max(1, Math.min(10, moodRating));
+      logMood(clampedRating, moodNote.trim() || undefined, moodDate);
+      onShowToast('Mood Logged!', `Recorded vibe: ${clampedRating}/10 for ${moodDate}`, 'success');
       setMoodNote('');
     } catch (err: any) {
       onShowToast('Failed to log mood', err.message, 'error');
+    }
+  };
+
+  const handleNoteSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs: { title?: string; description?: string } = {};
+    if (!noteTitle.trim()) errs.title = 'Title is required.';
+    if (!noteDescription.trim()) errs.description = 'Description is required.';
+    if (Object.keys(errs).length > 0) {
+      setNoteErrors(errs);
+      return;
+    }
+    setNoteErrors({});
+
+    try {
+      addNote({
+        title: noteTitle.trim(),
+        description: noteDescription.trim(),
+        date: noteDate,
+      });
+      onShowToast('Reflection Saved!', `"${noteTitle.trim()}" added to your journal.`, 'success');
+      setNoteTitle('');
+      setNoteDescription('');
+    } catch (err: any) {
+      onShowToast('Failed to save note', err.message, 'error');
     }
   };
 
@@ -66,6 +100,7 @@ export const AddEntryPage: React.FC<AddEntryProps> = ({ lifeData, onShowToast })
     { id: 'expense', label: 'Expense', icon: '💳' },
     { id: 'goal', label: 'Goal', icon: '🎯' },
     { id: 'mood', label: 'Mood / Vibe', icon: '😊' },
+    { id: 'note', label: 'Note / Reflection', icon: '📝' },
   ];
 
   return (
@@ -171,17 +206,87 @@ export const AddEntryPage: React.FC<AddEntryProps> = ({ lifeData, onShowToast })
                   </div>
                 </div>
 
-                <Input
-                  id="mood-note"
-                  label="Reflection Note (Optional)"
-                  placeholder="e.g. Cleared difficult algorithm challenges and felt great mental clarity."
-                  value={moodNote}
-                  onChange={(e) => setMoodNote(e.target.value)}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <Input
+                    id="mood-date"
+                    label="Date"
+                    type="date"
+                    value={moodDate}
+                    onChange={(e) => setMoodDate(e.target.value)}
+                    required
+                  />
+                  <Input
+                    id="mood-note"
+                    label="Reflection Note (Optional)"
+                    placeholder="e.g. Deep focus with great mental clarity."
+                    value={moodNote}
+                    onChange={(e) => setMoodNote(e.target.value)}
+                  />
+                </div>
 
                 <div className="flex justify-end pt-3 border-t border-neutral-800">
                   <Button variant="primary" size="md" type="submit">
                     Save Mood Check-in
+                  </Button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {activeTab === 'note' && (
+            <div role="tabpanel" id="panel-note" aria-labelledby="tab-note">
+              <h2 className="text-base font-bold text-neutral-100 mb-4 flex items-center gap-2">
+                <span>📝</span>
+                <span>Log Reflection / Daily Note</span>
+              </h2>
+              <form onSubmit={handleNoteSubmit} className="space-y-4" noValidate>
+                <Input
+                  id="note-title"
+                  label="Title"
+                  placeholder="e.g. Breakthrough on distributed systems architecture"
+                  value={noteTitle}
+                  onChange={(e) => {
+                    setNoteTitle(e.target.value);
+                    if (noteErrors.title) setNoteErrors(prev => ({ ...prev, title: undefined }));
+                  }}
+                  error={noteErrors.title}
+                  required
+                />
+
+                <Input
+                  id="note-date"
+                  label="Date"
+                  type="date"
+                  value={noteDate}
+                  onChange={(e) => setNoteDate(e.target.value)}
+                  required
+                />
+
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="note-description" className="text-sm font-medium text-neutral-200">
+                    Description / Reflection Content
+                  </label>
+                  <textarea
+                    id="note-description"
+                    rows={4}
+                    value={noteDescription}
+                    onChange={(e) => {
+                      setNoteDescription(e.target.value);
+                      if (noteErrors.description) setNoteErrors(prev => ({ ...prev, description: undefined }));
+                    }}
+                    placeholder="Capture insights, wins, lessons learned, or daily reflections..."
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-neutral-800/80 border border-neutral-700 text-neutral-100 placeholder-neutral-500 focus:border-amber-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 text-sm"
+                  />
+                  {noteErrors.description && (
+                    <p className="text-xs text-red-400 font-medium" role="alert">
+                      {noteErrors.description}
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex justify-end pt-3 border-t border-neutral-800">
+                  <Button variant="primary" size="md" type="submit">
+                    Save Note
                   </Button>
                 </div>
               </form>

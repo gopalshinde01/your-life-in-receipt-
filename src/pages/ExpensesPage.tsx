@@ -5,6 +5,7 @@ import { ExpenseForm } from '../components/expenses/ExpenseForm';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { Card } from '../components/common/Card';
+import { Expense } from '../types';
 import { EXPENSE_CATEGORIES } from '../constants';
 import { useLifeData } from '../hooks/useLifeData';
 import { calculateTotalExpenses } from '../utils/calculations';
@@ -16,8 +17,9 @@ export interface ExpensesPageProps {
 }
 
 export const ExpensesPage: React.FC<ExpensesPageProps> = ({ lifeData, onShowToast }) => {
-  const { expenses, profile, addExpense, deleteExpense } = lifeData;
+  const { expenses, profile, addExpense, updateExpense, deleteExpense } = lifeData;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>('All');
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -40,6 +42,17 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ lifeData, onShowToas
       addExpense(data);
       setIsModalOpen(false);
       onShowToast('Expense Logged', `${data.description} added successfully.`, 'success');
+    } catch (err: any) {
+      onShowToast('Error', err.message, 'error');
+    }
+  };
+
+  const handleEditSubmit = (data: Parameters<typeof addExpense>[0]) => {
+    if (!editingExpense) return;
+    try {
+      updateExpense(editingExpense.id, data);
+      setEditingExpense(null);
+      onShowToast('Expense Updated', `"${data.description}" updated successfully.`, 'success');
     } catch (err: any) {
       onShowToast('Error', err.message, 'error');
     }
@@ -118,6 +131,7 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ lifeData, onShowToas
           expenses={filteredExpenses}
           currency={profile.currency}
           onDelete={deleteExpense}
+          onEdit={setEditingExpense}
           onAddClick={() => setIsModalOpen(true)}
         />
 
@@ -132,6 +146,23 @@ export const ExpensesPage: React.FC<ExpensesPageProps> = ({ lifeData, onShowToas
             onSubmit={handleAddSubmit}
             onCancel={() => setIsModalOpen(false)}
           />
+        </Modal>
+
+        {/* Edit Expense Accessible Modal */}
+        <Modal
+          isOpen={Boolean(editingExpense)}
+          onClose={() => setEditingExpense(null)}
+          title="Edit Expense"
+        >
+          {editingExpense && (
+            <ExpenseForm
+              initialData={editingExpense}
+              submitLabel="Update Expense"
+              currency={profile.currency}
+              onSubmit={handleEditSubmit}
+              onCancel={() => setEditingExpense(null)}
+            />
+          )}
         </Modal>
       </div>
     </PageContainer>

@@ -5,6 +5,7 @@ import { GoalForm } from '../components/goals/GoalForm';
 import { Button } from '../components/common/Button';
 import { Modal } from '../components/common/Modal';
 import { StatCard } from '../components/common/StatCard';
+import { Goal } from '../types';
 import { useLifeData } from '../hooks/useLifeData';
 import { calculateGoalProgress } from '../utils/calculations';
 import { triggerConfetti } from '../utils/confetti';
@@ -15,8 +16,9 @@ export interface GoalsPageProps {
 }
 
 export const GoalsPage: React.FC<GoalsPageProps> = ({ lifeData, onShowToast }) => {
-  const { goals, addGoal, updateGoalProgress, toggleGoalCompleted, deleteGoal } = lifeData;
+  const { goals, addGoal, updateGoal, updateGoalProgress, toggleGoalCompleted, deleteGoal } = lifeData;
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingGoal, setEditingGoal] = useState<Goal | null>(null);
 
   const completedCount = goals.filter(g => g.completed).length;
   const inProgressCount = goals.filter(g => !g.completed).length;
@@ -46,6 +48,20 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ lifeData, onShowToast }) =
       setIsModalOpen(false);
       onShowToast('Goal Created', `${data.title} added to targets.`, 'success');
       if (data.progress >= 100) {
+        triggerConfetti(2000);
+      }
+    } catch (err: any) {
+      onShowToast('Error', err.message, 'error');
+    }
+  };
+
+  const handleEditSubmit = (data: Parameters<typeof addGoal>[0]) => {
+    if (!editingGoal) return;
+    try {
+      updateGoal(editingGoal.id, data);
+      setEditingGoal(null);
+      onShowToast('Goal Updated', `"${data.title}" updated successfully.`, 'success');
+      if (data.progress >= 100 && (!editingGoal.completed || editingGoal.progress < 100)) {
         triggerConfetti(2000);
       }
     } catch (err: any) {
@@ -92,6 +108,7 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ lifeData, onShowToast }) =
           onUpdateProgress={handleUpdateProgress}
           onToggleComplete={handleToggleComplete}
           onDelete={deleteGoal}
+          onEdit={setEditingGoal}
           onAddClick={() => setIsModalOpen(true)}
         />
 
@@ -105,6 +122,22 @@ export const GoalsPage: React.FC<GoalsPageProps> = ({ lifeData, onShowToast }) =
             onSubmit={handleAddSubmit}
             onCancel={() => setIsModalOpen(false)}
           />
+        </Modal>
+
+        {/* Edit Goal Modal */}
+        <Modal
+          isOpen={Boolean(editingGoal)}
+          onClose={() => setEditingGoal(null)}
+          title="Edit Goal"
+        >
+          {editingGoal && (
+            <GoalForm
+              initialData={editingGoal}
+              submitLabel="Update Goal"
+              onSubmit={handleEditSubmit}
+              onCancel={() => setEditingGoal(null)}
+            />
+          )}
         </Modal>
       </div>
     </PageContainer>

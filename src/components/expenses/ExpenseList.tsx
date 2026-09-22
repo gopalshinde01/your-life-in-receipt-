@@ -7,6 +7,7 @@ export interface ExpenseListProps {
   expenses: Expense[];
   currency?: string;
   onDelete: (id: string) => void;
+  onEdit?: (expense: Expense) => void;
   onAddClick?: () => void;
 }
 
@@ -14,6 +15,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
   expenses,
   currency = '₹',
   onDelete,
+  onEdit,
   onAddClick,
 }) => {
   if (expenses.length === 0) {
@@ -35,6 +37,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({
           expense={expense}
           currency={currency}
           onDelete={onDelete}
+          onEdit={onEdit}
         />
       ))}
     </div>

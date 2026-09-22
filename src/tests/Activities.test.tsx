@@ -47,4 +47,48 @@ describe('Activity Component & Validation', () => {
     expect(screen.getByRole('alert')).toBeInTheDocument();
     expect(screen.getByText(/cannot exceed 1440 minutes/i)).toBeInTheDocument();
   });
+
+  it('prepopulates initialData in edit mode and allows updating', async () => {
+    const user = userEvent.setup();
+    const handleSubmit = vi.fn();
+
+    const existingActivity = {
+      id: 'act_123',
+      title: 'Writing Unit Tests',
+      category: 'Coding' as const,
+      durationMinutes: 45,
+      date: '2026-03-20',
+      notes: 'Initial test setup',
+      createdAt: Date.now(),
+    };
+
+    render(
+      <ActivityForm
+        initialData={existingActivity}
+        submitLabel="Update Activity"
+        onSubmit={handleSubmit}
+      />
+    );
+
+    const titleInput = screen.getByLabelText(/Activity Title/i) as HTMLInputElement;
+    const durationInput = screen.getByLabelText(/Duration/i) as HTMLInputElement;
+    const submitBtn = screen.getByRole('button', { name: /Update Activity/i });
+
+    expect(titleInput.value).toBe('Writing Unit Tests');
+    expect(durationInput.value).toBe('45');
+
+    await user.clear(titleInput);
+    await user.type(titleInput, 'Writing Integration Tests');
+    await user.clear(durationInput);
+    await user.type(durationInput, '75');
+    await user.click(submitBtn);
+
+    expect(handleSubmit).toHaveBeenCalledTimes(1);
+    expect(handleSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        title: 'Writing Integration Tests',
+        durationMinutes: 75,
+      })
+    );
+  });
 });

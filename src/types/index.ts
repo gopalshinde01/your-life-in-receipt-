@@ -46,6 +46,7 @@ export interface Goal {
   targetDate: string;
   progress: number; // 0 to 100
   completed: boolean;
+  description?: string;
   createdAt: number;
 }
 
@@ -54,6 +55,14 @@ export interface Experience {
   title: string;
   description: string;
   importance: number; // 1 to 5
+  date: string;
+  createdAt: number;
+}
+
+export interface NoteEntry {
+  id: string;
+  title: string;
+  description: string;
   date: string;
   createdAt: number;
 }
@@ -119,6 +128,9 @@ export interface LifeReceiptData {
   lifeScoreBreakdown: LifeScoreBreakdown;
   aiInsight: string;
   barcodeValue: string;
+  activitiesCount?: number;
+  completedGoalsCount?: number;
+  todayHighlight?: string;
 }
 
 export interface ToastNotification {

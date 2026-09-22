@@ -130,45 +130,6 @@ export const ThemeLanguageControl: React.FC<ThemeLanguageControlProps> = ({
   // Compact Combined Trigger (Header & Toolbars)
   return (
     <div className="relative inline-flex items-center gap-1.5" ref={dropdownRef}>
-      {/* Sleek Dark/Light Segmented Toggle Switch */}
-      <div 
-        className="flex items-center p-0.5 rounded-xl bg-neutral-800/90 border border-neutral-700/80 shadow-inner"
-        role="group"
-        aria-label="Theme mode switch"
-      >
-        <button
-          type="button"
-          onClick={() => onSelectTheme('classic')}
-          aria-pressed={currentTheme === 'classic'}
-          aria-label="Switch to Classic Thermal dark theme"
-          title="Classic Thermal (Dark)"
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 min-h-[36px] ${
-            currentTheme === 'classic'
-              ? 'bg-neutral-900 text-amber-400 font-bold shadow-sm border border-neutral-700/60'
-              : 'text-neutral-400 hover:text-neutral-200'
-          }`}
-        >
-          <span aria-hidden="true">🧾</span>
-          <span className="hidden md:inline font-mono text-[11px]">Dark</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => onSelectTheme('pure-white')}
-          aria-pressed={currentTheme === 'pure-white'}
-          aria-label="Switch to Pure White light theme"
-          title="Pure White (Light)"
-          className={`flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 min-h-[36px] ${
-            currentTheme === 'pure-white'
-              ? 'bg-white text-neutral-900 font-bold shadow-sm border border-neutral-200'
-              : 'text-neutral-400 hover:text-neutral-200'
-          }`}
-        >
-          <span aria-hidden="true">☀️</span>
-          <span className="hidden md:inline font-mono text-[11px]">Light</span>
-        </button>
-      </div>
-
       {/* Combined Preferences Dropdown Trigger */}
       <button
         type="button"
